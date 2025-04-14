@@ -1,5 +1,5 @@
-import { getUsersForSidebar } from "../controller/user.controller";
-import protectRoute from "../middleware/protectRoute";
+const  getUsersForSidebar =require( "../controller/user.controller");
+const protectRoute =require( "../middleware/protectRoute");
 
 const express=require("express")
 
@@ -8,4 +8,4 @@ const router = express.Router();
 
 router.get("/", protectRoute, getUsersForSidebar);
 
-export default router;
+module.exports=router

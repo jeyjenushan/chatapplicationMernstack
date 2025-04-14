@@ -1,8 +1,9 @@
-import { Conversation } from "../models/conversation.model";
-import { Message } from "../models/message.model";
+const { Conversation } =require("../models/conversation.model");
+const { Message } =require( "../models/message.model");
+const { getReceiverSocketId, io }=require(  "../socket/socket");
 
 
-export const sendMessage=async(req,res)=>{
+ const sendMessage=async(req,res)=>{
 try{
 
     const {message}=req.body;
@@ -29,12 +30,22 @@ try{
    //await conversation.save()
     //await newMessage.save()
 
-    //This will run in the parallel
-    await Promise.all([conversation.save(),newMessage.save()])
+
 
     if(newMessage){
         conversation.messages.push(newMessage._id)
     }
+
+
+
+    //This will run in the parallel
+    await Promise.all([conversation.save(),newMessage.save()])
+    const receiverSocketId=getReceiverSocketId(receiverId)
+    if(receiverSocketId){
+        //This method used to send events to specific client
+        io.to(receiverSocketId).emit("newMessage",newMessage)
+    }
+
 
 res.status(201).json(newMessage)
 
@@ -47,7 +58,7 @@ res.status(201).json(newMessage)
 
 }
 
-export const getMessage=async(req,res)=>{
+ const getMessage=async(req,res)=>{
     try{
 
         const {id:userToChatId}=req.params;
@@ -70,4 +81,8 @@ export const getMessage=async(req,res)=>{
     }
     
     
+}
+
+module.exports={
+    getMessage,sendMessage
 }
